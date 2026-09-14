@@ -1,0 +1,246 @@
+:host {
+  position: relative;
+  z-index: 2;
+  display: block;
+  padding-block: var(--space-section);
+  background: var(--color-bg);
+}
+
+// ── Üst: büyük tipografik çağrı + kısa metin/CTA
+.contact__head {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 2rem 1.5rem;
+  align-items: end;
+  padding-bottom: clamp(2.5rem, 1.5rem + 3vw, 4.5rem);
+}
+
+.contact__title {
+  grid-column: 1 / span 8;
+  display: grid;
+  gap: 1.5rem;
+}
+
+.contact__lead {
+  grid-column: 9 / -1;
+  display: grid;
+  gap: 1.5rem;
+  justify-items: start;
+  padding-bottom: 0.5rem;
+
+  p {
+    max-width: 34ch;
+  }
+}
+
+// ── Alt: iletişim satırları + ziyaret görseli
+.contact__body {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 1.5rem;
+  align-items: stretch;
+}
+
+.rows {
+  grid-column: 1 / span 8;
+  align-self: center;
+  border-top: 1px solid var(--color-border);
+}
+
+.rows > li {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.row {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(10rem, 13rem) 1fr auto;
+  align-items: center;
+  gap: 1rem 1.5rem;
+  padding: clamp(1.4rem, 1rem + 1vw, 2rem) clamp(0.75rem, 0.5rem + 0.8vw, 1.25rem);
+  color: var(--color-text);
+  text-decoration: none;
+  isolation: isolate;
+  overflow: hidden;
+
+  // hover: alttan dolan yüzey
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--color-surface);
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform var(--dur-3) var(--ease-out);
+  }
+
+  &:focus-visible {
+    outline-offset: -2px;
+  }
+}
+
+.row__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+
+  app-icon {
+    font-size: 1.1rem;
+    color: var(--color-accent-strong);
+  }
+}
+
+.row__value {
+  font-family: var(--font-display);
+  font-weight: 350;
+  font-size: clamp(1.6rem, 1.1rem + 1.4vw, 2.6rem);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  transition: transform var(--dur-3) var(--ease-out);
+
+  &--small {
+    font-size: clamp(1.15rem, 0.95rem + 0.6vw, 1.55rem);
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+  }
+}
+
+.row__hours {
+  display: block;
+
+  b {
+    margin-left: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+}
+
+.row__action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.row__arrow {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  font-size: 1rem;
+  transition:
+    background-color var(--dur-3) var(--ease-out),
+    border-color var(--dur-3) var(--ease-out),
+    color var(--dur-3) var(--ease-out),
+    transform var(--dur-3) var(--ease-out);
+}
+
+@media (hover: hover) {
+  a.row:hover {
+    &::before {
+      transform: scaleY(1);
+    }
+    .row__value {
+      transform: translateX(0.5rem);
+    }
+    .row__arrow {
+      background: var(--color-cta);
+      border-color: var(--color-cta);
+      color: var(--color-cta-text);
+      transform: rotate(45deg);
+    }
+  }
+}
+
+// Ziyaret görseli — metinden bağımsız kart
+.visit {
+  grid-column: 9 / -1;
+  position: relative;
+  margin: 0;
+  display: grid;
+  border-radius: var(--radius-l);
+  overflow: hidden;
+  background: var(--color-surface);
+  border: 1px solid var(--color-hairline);
+}
+
+.visit__media {
+  --media-radius: 0;
+}
+
+.visit__caption {
+  display: grid;
+  gap: 0.25rem;
+  padding: 1.1rem 1.25rem 1.25rem;
+}
+
+.visit__title {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.35rem;
+  letter-spacing: -0.015em;
+}
+
+.visit__sub {
+  font-size: var(--text-small);
+  color: var(--color-muted);
+}
+
+// ── Tablet
+@media (max-width: 1099px) {
+  .contact__title,
+  .contact__lead,
+  .rows,
+  .visit {
+    grid-column: 1 / -1;
+  }
+  .visit {
+    grid-template-columns: 1.2fr 1fr;
+    align-items: end;
+  }
+  .visit__media {
+    aspect-ratio: 4 / 3 !important;
+  }
+}
+
+// ── Mobil
+@media (max-width: 767px) {
+  .contact__lead .btn {
+    width: 100%;
+  }
+  .row {
+    grid-template-columns: 1fr auto;
+    gap: 0.5rem 1rem;
+    padding-inline: 0.25rem;
+  }
+  .row__label {
+    grid-column: 1 / -1;
+  }
+  .row__value {
+    font-size: 1.6rem;
+
+    &--small {
+      font-size: 1.1rem;
+    }
+  }
+  .row__action {
+    font-size: 0;
+    gap: 0;
+  }
+  .visit {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,107 @@
+// Display: Newsreader (editoryal serif — tıbbi yayın ciddiyeti + insani sıcaklık)
+// Body:    Manrope (yüksek okunabilirlik, modern geometrik grotesk)
+// Mono:    Geist Mono (etiketler, ölçüler, AI/teknoloji dili)
+
+.t-display-xl,
+.t-display-l,
+.t-display-m,
+.t-h1,
+.t-h2 {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-optical-sizing: auto;
+  letter-spacing: -0.035em;
+  line-height: 0.92;
+  text-wrap: balance;
+  font-variation-settings: 'wght' 300;
+
+  em {
+    font-style: italic;
+    font-weight: 300;
+    letter-spacing: -0.045em;
+    color: var(--color-accent-strong);
+  }
+}
+
+.t-display-xl {
+  font-size: var(--text-display-xl);
+  line-height: 0.88;
+}
+.t-display-l {
+  font-size: var(--text-display-l);
+}
+.t-display-m {
+  font-size: var(--text-display-m);
+  line-height: 0.96;
+}
+.t-h1 {
+  font-size: var(--text-h1);
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+.t-h2 {
+  font-size: var(--text-h2);
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+}
+.t-h3 {
+  font-family: var(--font-body);
+  font-size: var(--text-h3);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+}
+.t-body-xl {
+  font-size: var(--text-body-xl);
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+}
+.t-body-l {
+  font-size: var(--text-body-l);
+  line-height: 1.6;
+}
+.t-body {
+  font-size: var(--text-body);
+}
+.t-small {
+  font-size: var(--text-small);
+  line-height: 1.5;
+}
+.t-caption,
+.t-mono {
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.t-muted {
+  color: var(--color-muted);
+}
+
+// Headline lines — her satır ayrı maske (reveal için)
+.headline {
+  display: block;
+
+  &__line {
+    display: block;
+    overflow: clip;
+    padding-block: 0.2em 0.12em;
+    margin-block: -0.2em -0.12em;
+  }
+
+  &__inner {
+    display: inline-block;
+    will-change: transform;
+  }
+}
+
+.prose {
+  max-width: 62ch;
+  color: var(--color-muted);
+
+  p + p {
+    margin-top: 1em;
+  }
+}

@@ -1,0 +1,116 @@
+// ─────────────────────────────────────────────────────────────
+// BRAND TOKENS — "Porcelain & Light"
+// Renk değerleri çalışma zamanında ThemeService tarafından config'ten
+// (branding.palette) :root üzerine yazılır. Buradakiler SSR/yedek değerlerdir.
+// ─────────────────────────────────────────────────────────────
+
+:root {
+  // Color — day scenes
+  --color-bg: #f3efe8;
+  --color-surface: #fbf9f5;
+  --color-surface-alt: #e8e1d6;
+  --color-primary: #1f3a36;
+  --color-secondary: #8e9b8c;
+  --color-accent: #b08d57;
+  --color-accent-strong: #7a5e33;
+  --color-cta: #16181b;
+  --color-cta-text: #fbf9f5;
+  --color-text: #16181b;
+  --color-muted: #57534d;
+  --color-border: #d8d0c3;
+  --color-success: #2f6b4f;
+  --color-warning: #8f5a14;
+  --color-error: #9e3a30;
+
+  // Color — lab scenes
+  --lab-bg: #0d0f10;
+  --lab-surface: #171a1c;
+  --lab-text: #ede8df;
+  --lab-muted: #a39d93;
+  --lab-accent: #d2b688;
+  --lab-glow: #9db6c1;
+
+  // Derived
+  --color-hairline: color-mix(in oklab, var(--color-text) 12%, transparent);
+  --color-glass: color-mix(in oklab, var(--color-surface) 72%, transparent);
+  --color-focus: var(--color-accent-strong);
+
+  // Typography
+  --font-display: 'Newsreader', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --font-body: 'Manrope', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+
+  // Type scale (fluid) — 375px → 1920px
+  --text-display-xl: clamp(3.4rem, 1.6rem + 7.6vw, 10.5rem);
+  --text-display-l: clamp(3rem, 1.6rem + 5.4vw, 7.5rem);
+  --text-display-m: clamp(2.5rem, 1.5rem + 3.9vw, 5.25rem);
+  --text-h1: clamp(2.25rem, 1.6rem + 2.4vw, 3.75rem);
+  --text-h2: clamp(1.75rem, 1.35rem + 1.6vw, 2.75rem);
+  --text-h3: clamp(1.2rem, 1.08rem + 0.45vw, 1.5rem);
+  --text-body-xl: clamp(1.2rem, 1.08rem + 0.5vw, 1.5rem);
+  --text-body-l: clamp(1.05rem, 1rem + 0.2vw, 1.175rem);
+  --text-body: 1rem;
+  --text-small: 0.875rem;
+  --text-caption: 0.75rem;
+
+  // Space
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-s: 0.75rem;
+  --space-m: 1rem;
+  --space-l: 1.5rem;
+  --space-xl: 2.5rem;
+  --space-2xl: clamp(3rem, 2rem + 4vw, 6rem);
+  --space-section: clamp(6rem, 3rem + 10vw, 13rem);
+  --gutter: clamp(1.25rem, 0.6rem + 3vw, 4rem);
+  --max-width: 1520px;
+
+  // Shape
+  --radius-xs: 6px;
+  --radius-s: 12px;
+  --radius-m: 20px;
+  --radius-l: 32px;
+  --radius-pill: 999px;
+
+  // Elevation
+  --shadow-soft: 0 1px 1px rgb(22 24 27 / 3%), 0 8px 24px -12px rgb(22 24 27 / 12%);
+  --shadow-float: 0 2px 4px rgb(22 24 27 / 4%), 0 24px 64px -24px rgb(22 24 27 / 28%);
+
+  // Motion
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+  --dur-1: 160ms;
+  --dur-2: 320ms;
+  --dur-3: 640ms;
+  --dur-4: 1100ms;
+
+  // Layers
+  --z-stage: 0;
+  --z-content: 1;
+  --z-header: 50;
+  --z-cta-bar: 60;
+  --z-drawer: 80;
+  --z-assistant: 90;
+  --z-toast: 100;
+
+  --header-h: 76px;
+}
+
+// Lab scene: aynı componentler koyu zeminde otomatik uyum sağlar
+.scene--lab {
+  --color-bg: var(--lab-bg);
+  --color-surface: var(--lab-surface);
+  --color-surface-alt: color-mix(in oklab, var(--lab-surface) 80%, white 6%);
+  --color-text: var(--lab-text);
+  --color-muted: var(--lab-muted);
+  --color-accent-strong: var(--lab-accent);
+  --color-border: color-mix(in oklab, var(--lab-text) 16%, transparent);
+  --color-hairline: color-mix(in oklab, var(--lab-text) 12%, transparent);
+  --color-glass: color-mix(in oklab, var(--lab-surface) 70%, transparent);
+  --color-cta: var(--lab-text);
+  --color-cta-text: var(--lab-bg);
+  --color-focus: var(--lab-accent);
+  color: var(--color-text);
+  color-scheme: dark;
+}

@@ -1,0 +1,185 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "cli": {
+    "packageManager": "npm"
+  },
+  "newProjectRoot": "projects",
+  "projects": {
+    "dental-experience": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss",
+          "skipTests": true
+        },
+        "@schematics/angular:class": {
+          "skipTests": true
+        },
+        "@schematics/angular:directive": {
+          "skipTests": true
+        },
+        "@schematics/angular:guard": {
+          "skipTests": true
+        },
+        "@schematics/angular:interceptor": {
+          "skipTests": true
+        },
+        "@schematics/angular:pipe": {
+          "skipTests": true
+        },
+        "@schematics/angular:resolver": {
+          "skipTests": true
+        },
+        "@schematics/angular:service": {
+          "skipTests": true
+        }
+      },
+      "root": "",
+      "sourceRoot": "src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "src/main.ts",
+            "tsConfig": "tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "public",
+                "ignore": [
+                  "clinics/**"
+                ]
+              },
+              {
+                "glob": "**/*",
+                "input": "public/clinics/kutahyaakademi",
+                "output": "clinic"
+              }
+            ],
+            "styles": [
+              "src/styles.scss"
+            ],
+            "server": "src/main.server.ts",
+            "outputMode": "static"
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "450kB",
+                  "maximumError": "700kB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "12kB",
+                  "maximumError": "20kB"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            },
+            "kutahyaakademi": {
+              "fileReplacements": [
+                {
+                  "replace": "src/app/config/clinic.active.ts",
+                  "with": "src/app/config/active/kutahyaakademi.ts"
+                }
+              ],
+              "assets": [
+                {
+                  "glob": "**/*",
+                  "input": "public",
+                  "ignore": [
+                    "clinics/**"
+                  ]
+                },
+                {
+                  "glob": "**/*",
+                  "input": "public/clinics/kutahyaakademi",
+                  "output": "clinic"
+                }
+              ],
+              "outputPath": "dist/kutahyaakademi"
+            },
+            "kadriye-ozkul": {
+              "fileReplacements": [
+                {
+                  "replace": "src/app/config/clinic.active.ts",
+                  "with": "src/app/config/active/kadriye-ozkul.ts"
+                }
+              ],
+              "assets": [
+                {
+                  "glob": "**/*",
+                  "input": "public",
+                  "ignore": [
+                    "clinics/**"
+                  ]
+                },
+                {
+                  "glob": "**/*",
+                  "input": "public/clinics/kadriye-ozkul",
+                  "output": "clinic"
+                }
+              ],
+              "outputPath": "dist/kadriye-ozkul"
+            },
+            "dtnazliyoluc": {
+              "fileReplacements": [
+                {
+                  "replace": "src/app/config/clinic.active.ts",
+                  "with": "src/app/config/active/dtnazliyoluc.ts"
+                }
+              ],
+              "assets": [
+                {
+                  "glob": "**/*",
+                  "input": "public",
+                  "ignore": [
+                    "clinics/**"
+                  ]
+                },
+                {
+                  "glob": "**/*",
+                  "input": "public/clinics/dtnazliyoluc",
+                  "output": "clinic"
+                }
+              ],
+              "outputPath": "dist/dtnazliyoluc"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "dental-experience:build:production"
+            },
+            "development": {
+              "buildTarget": "dental-experience:build:development"
+            },
+            "kutahyaakademi": {
+              "buildTarget": "dental-experience:build:development,kutahyaakademi"
+            },
+            "kadriye-ozkul": {
+              "buildTarget": "dental-experience:build:development,kadriye-ozkul"
+            },
+            "dtnazliyoluc": {
+              "buildTarget": "dental-experience:build:development,dtnazliyoluc"
+            }
+          },
+          "defaultConfiguration": "development"
+        }
+      }
+    }
+  }
+}

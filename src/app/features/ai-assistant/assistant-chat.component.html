@@ -1,0 +1,333 @@
+<div class="chat__scroller" #scroller data-lenis-prevent>
+  <div class="chat__log" role="log" aria-live="polite" aria-relevant="additions" aria-label="Asistan ile konuşma">
+    @for (m of store.messages(); track m.id) {
+      <div class="msg" [class.msg--user]="m.from === 'user'" [class.msg--notice]="m.tone === 'notice'" [class.msg--safety]="m.tone === 'safety'">
+        @if (m.text) {
+          <p class="bubble">
+            <span class="visually-hidden">{{ m.from === 'user' ? 'Siz:' : 'Asistan:' }}</span>
+            @if (m.tone === 'notice') {
+              <app-icon name="info" class="bubble__icon" />
+            }
+            {{ m.text }}
+          </p>
+        }
+
+        @if (m.widget; as w) {
+          <div class="widget" [class.is-frozen]="!isActive(m.id)" [attr.inert]="isActive(m.id) ? null : ''">
+            @switch (w.kind) {
+              <!-- Quick actions -->
+              @case ('quick-actions') {
+                <div class="chips">
+                  @for (a of w.actions; track a) {
+                    <button type="button" class="pill pill--button" (click)="store.quickAction(a)">
+                      <app-icon [name]="quick[a].icon" /> {{ quick[a].label }}
+                    </button>
+                  }
+                </div>
+              }
+
+              <!-- Services -->
+              @case ('services') {
+                <div class="svc-grid">
+                  @for (s of cfg.services(); track s.id) {
+                    <button type="button" class="svc" (click)="store.pickService(s.id)">
+                      <app-icon [name]="s.icon" class="svc__icon" [stroke]="1.2" />
+                      <span class="svc__title">{{ s.shortTitle }}</span>
+                      <span class="svc__meta t-mono">{{ s.sessionMinutes }} dk ilk görüşme</span>
+                    </button>
+                  }
+                  <button type="button" class="svc svc--ghost" (click)="store.pickService(null)">
+                    <app-icon name="sparkle" class="svc__icon" [stroke]="1.2" />
+                    <span class="svc__title">Emin değilim</span>
+                    <span class="svc__meta t-mono">Genel muayene</span>
+                  </button>
+                </div>
+              }
+
+              <!-- Service card -->
+              @case ('service-card') {
+                @if (cfg.serviceById(w.serviceId); as s) {
+                  <article class="card-mini">
+                    <app-icon [name]="s.icon" class="card-mini__icon" [stroke]="1.2" />
+                    <div>
+                      <p class="t-caption t-muted">{{ s.discipline }}</p>
+                      <h3 class="card-mini__title">{{ s.title }}</h3>
+                      <p class="t-small t-muted">{{ s.summary }}</p>
+                      <a class="link t-small" [routerLink]="['/hizmetler', s.id]" (click)="ui.closeAssistant()">
+                        Detayları incele <app-icon name="arrow-up-right" />
+                      </a>
+                    </div>
+                  </article>
+                }
+              }
+
+              <!-- Doctors -->
+              @case ('doctors') {
+                <div class="doc-list">
+                  @for (d of cfg.doctors(); track d.id) {
+                    <button type="button" class="doc" (click)="store.pickDoctor(d.id)">
+                      <span class="doc__avatar" aria-hidden="true">{{ d.name.replace('Dt. ', '').charAt(0) }}</span>
+                      <span class="doc__text">
+                        <span class="doc__name">{{ d.name }}</span>
+                        <span class="t-small t-muted">{{ d.title }}</span>
+                      </span>
+                      <app-icon name="chevron-right" />
+                    </button>
+                  }
+                  @if (cfg.doctors().length > 1) {
+                    <button type="button" class="pill pill--button" (click)="store.pickDoctor(null)">Fark etmez</button>
+                  }
+                </div>
+              }
+
+              <!-- Calendar -->
+              @case ('calendar') {
+                <div class="cal">
+                  @if (!store.days().length) {
+                    <div class="cal__skeleton" aria-label="Takvim yükleniyor">
+                      @for (i of [1, 2, 3, 4, 5, 6, 7]; track i) {
+                        <span class="skeleton"></span>
+                      }
+                    </div>
+                  } @else {
+                    @for (group of weeks(); track group.label) {
+                      <p class="cal__month t-caption">{{ group.label }}</p>
+                      <div class="cal__strip" role="listbox" [attr.aria-label]="group.label + ' uygun günler'">
+                        @for (d of group.days; track d.date) {
+                          @let parts = dayParts(d.date);
+                          <button
+                            type="button"
+                            role="option"
+                            class="day"
+                            [class.is-selected]="store.draft().date === d.date"
+                            [attr.aria-selected]="store.draft().date === d.date"
+                            [disabled]="!d.available"
+                            [attr.aria-label]="parts.label + (d.available ? ', ' + d.slotsLeft + ' uygun saat' : ', uygun saat yok')"
+                            (click)="store.pickDate(d.date)"
+                          >
+                            <span class="day__wd">{{ parts.weekday }}</span>
+                            <span class="day__num">{{ parts.day }}</span>
+                            <span class="day__dots" [attr.data-density]="density(d.slotsLeft)" aria-hidden="true"><i></i><i></i><i></i></span>
+                          </button>
+                        }
+                      </div>
+                    }
+                    @if (cfg.config().appointment.showDemoNotice) {
+                      <p class="cal__note t-caption">Demo takvim · gösterilen uygunluklar örnektir</p>
+                    }
+                  }
+                </div>
+              }
+
+              <!-- Time slots -->
+              @case ('slots') {
+                <div class="slots">
+                  @if (store.draft().date; as date) {
+                    <p class="slots__date">
+                      <app-icon name="calendar" /> {{ formatDateLong(date) }}
+                    </p>
+                  }
+                  @if (!store.slots().length) {
+                    <div class="slots__skeleton">
+                      @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+                        <span class="skeleton"></span>
+                      }
+                    </div>
+                  } @else {
+                    @for (g of slotGroups(); track g.id) {
+                      <div class="slots__group">
+                        <p class="t-caption t-muted">{{ g.label }}</p>
+                        <div class="slots__row">
+                          @for (s of g.slots; track s.time) {
+                            <button
+                              type="button"
+                              class="slot"
+                              [class.is-selected]="store.draft().time === s.time"
+                              [disabled]="!s.available"
+                              [attr.aria-label]="s.time + (s.available ? '' : ', dolu')"
+                              (click)="store.pickTime(s.time)"
+                            >
+                              {{ s.time }}
+                            </button>
+                          }
+                        </div>
+                      </div>
+                    }
+                  }
+                </div>
+              }
+
+              <!-- Consent -->
+              @case ('consent') {
+                <form class="consent" [formGroup]="consent" (ngSubmit)="submitConsent()">
+                  <label class="checkbox">
+                    <input type="checkbox" formControlName="kvkk" [attr.aria-invalid]="consent.controls.kvkk.touched && consent.controls.kvkk.invalid" />
+                    <span>
+                      Randevu talebimin oluşturulması amacıyla ad-soyad ve telefon bilgimin işlenmesine ilişkin
+                      <a routerLink="/kvkk" target="_blank" rel="noopener">KVKK Aydınlatma Metni</a>’ni okudum, onaylıyorum.
+                      <span class="req">(zorunlu)</span>
+                    </span>
+                  </label>
+                  <label class="checkbox">
+                    <input type="checkbox" formControlName="contact" />
+                    <span>Randevu hatırlatmaları için telefonla / SMS ile iletişime geçilmesine izin veriyorum. (isteğe bağlı)</span>
+                  </label>
+                  @if (consent.controls.kvkk.touched && consent.controls.kvkk.invalid) {
+                    <p class="field__error" role="alert">Devam etmek için aydınlatma metnini onaylamanız gerekiyor.</p>
+                  }
+                  <button type="submit" class="btn btn--sm">Onaylıyorum</button>
+                </form>
+              }
+
+              <!-- Summary -->
+              @case ('summary') {
+                <section class="summary" aria-label="Randevu özeti">
+                  <header class="summary__head">
+                    <span class="t-caption">Randevu özeti</span>
+                    <app-icon name="tooth" />
+                  </header>
+                  <dl>
+                    <div>
+                      <dt>Hizmet</dt>
+                      <dd>
+                        {{ store.visit().title }}
+                        <button type="button" class="summary__edit" (click)="store.editSummary('service')">Değiştir</button>
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>Randevu tipi</dt>
+                      <dd>{{ store.visit().appointmentType }} · {{ store.visit().minutes }} dk</dd>
+                    </div>
+                    @if (store.doctor(); as doc) {
+                      <div>
+                        <dt>Hekim</dt>
+                        <dd>{{ doc.name }}</dd>
+                      </div>
+                    }
+                    <div>
+                      <dt>Tarih</dt>
+                      <dd>
+                        {{ formatDateLong(store.draft().date!) }}
+                        <button type="button" class="summary__edit" (click)="store.editSummary('date')">Değiştir</button>
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>Saat</dt>
+                      <dd>
+                        {{ store.draft().time }}
+                        <button type="button" class="summary__edit" (click)="store.editSummary('time')">Değiştir</button>
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>Ad Soyad</dt>
+                      <dd>{{ store.draft().name }}</dd>
+                    </div>
+                    <div>
+                      <dt>Telefon</dt>
+                      <dd>{{ formatPhone(store.draft().phone) }}</dd>
+                    </div>
+                  </dl>
+                  <button type="button" class="btn summary__submit" [disabled]="store.busy()" (click)="store.confirm()">
+                    Randevu Talebini Gönder
+                    <span class="btn__icon"><app-icon name="arrow-right" /></span>
+                  </button>
+                </section>
+              }
+
+              <!-- Confirmed -->
+              @case ('confirmed') {
+                <section class="done" aria-label="Randevu talebi oluşturuldu">
+                  <span class="done__check" aria-hidden="true"><app-icon name="check" [stroke]="2" /></span>
+                  <p class="t-caption t-muted">Referans</p>
+                  <p class="done__ref">{{ w.appointment.reference }}</p>
+                  <p class="t-small">
+                    {{ formatDateLong(w.appointment.date) }} · {{ w.appointment.time }}<br />
+                    {{ w.appointment.appointmentType }}
+                  </p>
+                  <div class="done__actions">
+                    <button type="button" class="btn btn--sm btn--ghost" (click)="addToCalendar(w.appointment)">
+                      <app-icon name="calendar" /> Takvime ekle
+                    </button>
+                    @if (whatsappSummary(); as wa) {
+                      <a class="btn btn--sm btn--ghost" [href]="wa" target="_blank" rel="noopener">
+                        <app-icon name="whatsapp" /> WhatsApp ile ilet
+                      </a>
+                    }
+                  </div>
+                  <button type="button" class="link t-small" (click)="newBooking()">Yeni randevu planla</button>
+                </section>
+              }
+
+              <!-- Contact -->
+              @case ('contact') {
+                <div class="info">
+                  @if (cfg.phoneHref(); as tel) {
+                    <a class="info__row" [href]="tel"><app-icon name="phone" /> {{ cfg.contact().phoneDisplay }}</a>
+                  } @else {
+                    <span class="info__row"><app-icon name="phone" /> {{ cfg.contact().phoneDisplay }}</span>
+                  }
+                  @if (cfg.whatsappHref('Merhaba, bilgi almak istiyorum.'); as wa) {
+                    <a class="info__row" [href]="wa" target="_blank" rel="noopener"><app-icon name="whatsapp" /> WhatsApp ile yazın</a>
+                  }
+                  @if (cfg.mapsHref(); as maps) {
+                    <a class="info__row" [href]="maps" target="_blank" rel="noopener"><app-icon name="pin" /> {{ cfg.addressLine() }}</a>
+                  } @else {
+                    <span class="info__row"><app-icon name="pin" /> {{ cfg.addressLine() }}</span>
+                  }
+                </div>
+              }
+
+              <!-- Hours -->
+              @case ('hours') {
+                <dl class="info info--hours">
+                  @for (h of cfg.hoursSummary(); track $index) {
+                    <div class="info__row">
+                      <dt><app-icon name="clock" /> {{ h.days }}</dt>
+                      <dd class="t-mono">{{ h.time }}</dd>
+                    </div>
+                  }
+                </dl>
+              }
+
+              <!-- Emergency -->
+              @case ('emergency') {
+                <div class="emergency">
+                  @if (cfg.phoneHref(); as tel) {
+                    <a class="btn btn--sm" [href]="tel"><app-icon name="phone" /> Kliniği ara</a>
+                  }
+                  <a class="btn btn--sm btn--ghost" href="tel:112">112 Acil</a>
+                </div>
+              }
+            }
+          </div>
+        }
+      </div>
+    }
+
+    @if (store.typing()) {
+      <div class="msg" aria-hidden="true">
+        <p class="bubble bubble--typing"><span class="typing"><span></span><span></span><span></span></span></p>
+      </div>
+    }
+  </div>
+</div>
+
+<form class="composer" (submit)="$event.preventDefault(); send()">
+  <label class="visually-hidden" for="assistant-input-{{ variant() }}">Asistana mesaj yazın</label>
+  <input
+    #field
+    id="assistant-input-{{ variant() }}"
+    class="composer__input"
+    [formControl]="message"
+    [attr.placeholder]="store.inputHint().placeholder"
+    [attr.inputmode]="store.inputHint().mode"
+    [attr.autocomplete]="store.inputHint().autocomplete"
+    [attr.type]="store.inputHint().mode === 'tel' ? 'tel' : 'text'"
+    maxlength="400"
+    data-autofocus
+  />
+  <button type="submit" class="composer__send" [disabled]="!message.value.trim() || store.busy()" aria-label="Gönder">
+    <app-icon name="send" />
+  </button>
+</form>
+<p class="chat__foot t-caption">Yapay zekâ destekli asistan · Tanı koymaz</p>

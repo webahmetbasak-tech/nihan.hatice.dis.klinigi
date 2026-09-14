@@ -1,0 +1,68 @@
+<header class="bar wrap">
+  <a routerLink="/" class="bar__brand">
+    <app-brand-mark />
+    <span class="visually-hidden"> — ana sayfa</span>
+  </a>
+
+  <nav class="bar__nav" aria-label="Ana menü">
+    <ul role="list">
+      @for (item of nav.items; track item.id) {
+        <li>
+          <a class="bar__link" [href]="'/#' + item.id" (click)="$event.preventDefault(); nav.goTo(item.id)">
+            {{ item.label }}
+          </a>
+        </li>
+      }
+    </ul>
+  </nav>
+
+  <div class="bar__actions">
+    @if (cfg.phoneHref(); as tel) {
+      <a class="btn btn--glass btn--icon bar__phone" [href]="tel" [attr.data-tooltip]="cfg.contact().phoneDisplay" aria-label="Telefonla arayın: {{ cfg.contact().phoneDisplay }}">
+        <app-icon name="phone" />
+      </a>
+    }
+    <button type="button" class="btn bar__cta" appMagnetic (click)="ui.openAssistant()">
+      <span class="btn__dot" aria-hidden="true"></span>
+      Randevu Al
+    </button>
+    <button
+      type="button"
+      class="btn btn--glass btn--icon bar__menu"
+      [attr.aria-expanded]="ui.menuOpen()"
+      aria-controls="mobile-menu"
+      [attr.aria-label]="ui.menuOpen() ? 'Menüyü kapat' : 'Menüyü aç'"
+      (click)="ui.toggleMenu()"
+    >
+      <app-icon [name]="ui.menuOpen() ? 'close' : 'menu'" />
+    </button>
+  </div>
+</header>
+
+@if (ui.menuOpen()) {
+  <div id="mobile-menu" class="menu" role="dialog" aria-modal="true" aria-label="Menü" appFocusTrap (escape)="ui.toggleMenu(false)">
+    <nav class="menu__nav wrap" aria-label="Mobil menü">
+      <ol role="list">
+        @for (item of nav.items; track item.id; let i = $index) {
+          <li [style.animation-delay.ms]="80 + i * 55">
+            <a [href]="'/#' + item.id" (click)="$event.preventDefault(); nav.goTo(item.id)">
+              <span class="menu__index t-mono">0{{ i + 1 }}</span>
+              <span class="menu__label">{{ item.label }}</span>
+            </a>
+          </li>
+        }
+      </ol>
+    </nav>
+    <div class="menu__foot wrap">
+      <button type="button" class="btn btn--lg" (click)="ui.openAssistant()">
+        <span class="btn__dot" aria-hidden="true"></span> Randevu Al
+      </button>
+      <div class="menu__contact t-small">
+        @if (cfg.phoneHref(); as tel) {
+          <a [href]="tel">{{ cfg.contact().phoneDisplay }}</a>
+        }
+        <span class="t-muted">{{ cfg.addressLine() }}</span>
+      </div>
+    </div>
+  </div>
+}

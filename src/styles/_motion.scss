@@ -1,0 +1,64 @@
+// ─────────────────────────────────────────────────────────────
+// L2 REVEAL — IntersectionObserver `is-revealed` sınıfını ekler, animasyon burada.
+// Yalnızca JS'in işaretlediği ([data-reveal]) ve henüz açılmamış öğeler gizlenir;
+// JS çalışmazsa ya da hareket azaltılmışsa içerik her zaman görünür kalır.
+// ─────────────────────────────────────────────────────────────
+
+[data-reveal='up']:not(.is-revealed),
+[data-reveal='stagger']:not(.is-revealed) > * {
+  opacity: 0;
+  transform: translate3d(0, 36px, 0);
+}
+
+[data-reveal='fade']:not(.is-revealed) {
+  opacity: 0;
+}
+
+[data-reveal='clip']:not(.is-revealed) {
+  clip-path: inset(100% 0 0 0);
+}
+
+[data-reveal='lines']:not(.is-revealed) .headline__inner {
+  transform: translate3d(0, 115%, 0) rotate(2deg);
+}
+
+[data-reveal='up'].is-revealed,
+[data-reveal='stagger'].is-revealed > * {
+  transition:
+    opacity 1s var(--ease-out),
+    transform 1.2s var(--ease-out);
+  transition-delay: calc(var(--i, 0) * 90ms);
+}
+
+[data-reveal='fade'].is-revealed {
+  transition: opacity 1.2s var(--ease-out);
+}
+
+[data-reveal='clip'] {
+  transition: clip-path 1.5s var(--ease-in-out);
+}
+
+[data-reveal='clip'].is-revealed app-media {
+  animation: settle 1.8s var(--ease-out) both;
+}
+
+[data-reveal='lines'].is-revealed .headline__inner {
+  transition: transform 1.4s var(--ease-out);
+  transition-delay: calc(var(--i, 0) * 100ms);
+}
+
+@keyframes settle {
+  from {
+    transform: scale(1.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal],
+  [data-reveal] > *,
+  [data-reveal] .headline__inner {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+  }
+}
