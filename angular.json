@@ -154,6 +154,29 @@
                 }
               ],
               "outputPath": "dist/dtnazliyoluc"
+            },
+            "nihan_hatice_disklinigi": {
+              "fileReplacements": [
+                {
+                  "replace": "src/app/config/clinic.active.ts",
+                  "with": "src/app/config/active/nihan_hatice_disklinigi.ts"
+                }
+              ],
+              "assets": [
+                {
+                  "glob": "**/*",
+                  "input": "public",
+                  "ignore": [
+                    "clinics/**"
+                  ]
+                },
+                {
+                  "glob": "**/*",
+                  "input": "public/clinics/nihan_hatice_disklinigi",
+                  "output": "clinic"
+                }
+              ],
+              "outputPath": "dist/nihan_hatice_disklinigi"
             }
           },
           "defaultConfiguration": "production"
@@ -175,6 +198,9 @@
             },
             "dtnazliyoluc": {
               "buildTarget": "dental-experience:build:development,dtnazliyoluc"
+            },
+            "nihan_hatice_disklinigi": {
+              "buildTarget": "dental-experience:build:development,nihan_hatice_disklinigi"
             }
           },
           "defaultConfiguration": "development"

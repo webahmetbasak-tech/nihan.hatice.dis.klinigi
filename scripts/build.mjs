@@ -13,7 +13,7 @@ import { spawnSync } from 'node:child_process';
 import { cpSync, existsSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 
-const CLINICS = ['kutahyaakademi', 'kadriye-ozkul', 'dtnazliyoluc'];
+const CLINICS = ['kutahyaakademi', 'kadriye-ozkul', 'dtnazliyoluc', 'nihan_hatice_disklinigi'];
 const clinic = process.argv[2] || process.env.CLINIC || 'kutahyaakademi';
 
 if (!CLINICS.includes(clinic)) {
