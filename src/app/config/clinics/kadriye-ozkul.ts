@@ -56,7 +56,7 @@ export default defineClinic({
   },
 
   services: {
-    include: ['implant', 'smile-design', 'endodontics', 'whitening', 'orthodontics', 'zirconium-laminate', 'pedodontics'],
+    include: ['smile-design', 'implant', 'endodontics', 'whitening', 'orthodontics', 'zirconium-laminate', 'pedodontics'],
   },
 
   doctors: [

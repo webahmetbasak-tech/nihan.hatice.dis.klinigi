@@ -290,30 +290,34 @@
     background: color-mix(in oklab, var(--lab-bg) 72%, transparent);
     backdrop-filter: blur(16px);
   }
+  // Mobil: kartlar tek sütun, her biri tam genişlikte ve eksiksiz (açıklama + alt satır görünür)
   .grid {
-    gap: 0.6rem;
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
   }
-  .card__link {
-    --pad: 0.4rem;
-  }
-  .card:not(.card--feature) {
-    .card__summary,
-    .card__footer {
-      display: none;
+  .card--feature {
+    .card__link {
+      flex-direction: column;
+    }
+    .card__frame {
+      flex: none;
+      aspect-ratio: 4 / 3;
     }
     .card__body {
-      gap: 0.3rem;
-      padding: 0.65rem 0.35rem 0.4rem;
-    }
-    .card__concern {
-      font-size: 0.8rem;
+      padding: 1rem 0.6rem 0.4rem;
     }
     .card__title {
-      font-size: 1.1rem;
+      font-size: 1.9rem;
     }
   }
-  .card--feature .card__title {
-    font-size: 1.9rem;
+  .card__link {
+    --pad: 0.45rem;
+  }
+  .card__title {
+    font-size: 1.6rem;
+  }
+  .card__summary {
+    -webkit-line-clamp: 3;
   }
   .services__foot .btn {
     width: 100%;
