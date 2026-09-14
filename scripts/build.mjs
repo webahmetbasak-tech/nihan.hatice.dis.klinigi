@@ -14,7 +14,20 @@ import { cpSync, existsSync, readFileSync, readdirSync, rmSync, statSync, writeF
 import { join, relative, sep } from 'node:path';
 
 const CLINICS = ['kutahyaakademi', 'kadriye-ozkul', 'dtnazliyoluc', 'nihan_hatice_disklinigi'];
-const clinic = process.argv[2] || process.env.CLINIC || 'kutahyaakademi';
+/**
+ * Klinik seçimi (öncelik sırasıyla):
+ *  1) komut satırı argümanı        → npm run build:<klinik>
+ *  2) CLINIC ortam değişkeni        → Vercel → Environment Variables
+ *  3) Vercel'in repo adı            → VERCEL_GIT_REPO_SLUG (ortam değişkeni unutulsa bile doğru klinik)
+ *  4) varsayılan                    → kutahyaakademi
+ */
+const REPO_TO_CLINIC = {
+  kutahyaakademi: 'kutahyaakademi',
+  'nihan.hatice.dis.klinigi': 'nihan_hatice_disklinigi',
+};
+const repoSlug = (process.env.VERCEL_GIT_REPO_SLUG || '').toLowerCase();
+const clinic = process.argv[2] || process.env.CLINIC || REPO_TO_CLINIC[repoSlug] || 'kutahyaakademi';
+if (repoSlug) console.log(`ℹ Vercel repo: ${repoSlug} → klinik: ${clinic}`);
 
 if (!CLINICS.includes(clinic)) {
   console.error(`\n✖ Bilinmeyen klinik: "${clinic}". Geçerli değerler: ${CLINICS.join(', ')}\n`);
