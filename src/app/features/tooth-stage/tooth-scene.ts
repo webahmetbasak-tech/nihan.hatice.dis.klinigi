@@ -25,7 +25,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import type { MeshData, ToothLayers } from './tooth-geometry';
 
 /** Geometri Web Worker'da üretilir; worker yoksa (eski tarayıcı) ana thread'e düşer. */
-function computeLayers(quality: 'high' | 'low'): Promise<ToothLayers> {
+export function computeLayers(quality: 'high' | 'low'): Promise<ToothLayers> {
   const fallback = () => import('./tooth-geometry').then((m) => m.buildLayers(quality));
   if (typeof Worker === 'undefined') return fallback();
   return new Promise<ToothLayers>((resolve, reject) => {
@@ -147,9 +147,10 @@ export class ToothScene {
     this.resize();
   }
 
-  async build(): Promise<void> {
+  /** @param precomputed Önceden (sayfa yüklenirken) Worker'da hesaplanmış geometri — varsa beklemeden kullanılır. */
+  async build(precomputed?: Promise<ToothLayers>): Promise<void> {
     const high = this.options.quality === 'high';
-    const layers = await computeLayers(this.options.quality);
+    const layers = await (precomputed ?? computeLayers(this.options.quality));
     const enamel = toGeometry(layers.enamel);
     this.enamelMesh = new Mesh(enamel, this.enamelMat);
     this.enamelMesh.renderOrder = 3;
@@ -186,7 +187,10 @@ export class ToothScene {
       }),
     );
     this.spin.add(this.points);
-    this.renderer.compile(this.scene, this.camera);
+    // Shader derlemesi: destekleniyorsa paralel/asenkron (ana thread'i dondurmaz)
+    const r = this.renderer as WebGLRenderer & { compileAsync?: (s: Scene, c: PerspectiveCamera) => Promise<unknown> };
+    if (r.compileAsync) await r.compileAsync(this.scene, this.camera);
+    else this.renderer.compile(this.scene, this.camera);
   }
 
   setActive(active: boolean): void {

@@ -112,20 +112,35 @@ export class ToothStageComponent {
         this.resolveReady(null);
         return;
       }
+      const quality = this.viewport.isMobile() ? 'low' : 'high';
+      const idle = (window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number })
+        .requestIdleCallback;
+
+      // 1) HAZIRLIK — sayfa yüklendikten sonra arka planda: Three.js modülü indirilir,
+      //    geometri Web Worker'da hesaplanır. Kaydırmayı ve ilk yükleme metriklerini etkilemez.
+      let prepared: Promise<{ mod: typeof import('./tooth-scene'); layers: ReturnType<typeof import('./tooth-scene').computeLayers> }> | null = null;
+      const prepare = () =>
+        (prepared ??= import('./tooth-scene').then((mod) => ({ mod, layers: mod.computeLayers(quality) })));
+      // 2) BAŞLATMA — sayfa yüklenip tarayıcı boşta kaldığında otomatik (dokunuş beklenmez);
+      //    kullanıcı daha önce dokunur/kaydırırsa hemen. Yazılımsal GPU ortamları canRunWebGL() ile zaten elendi.
+      let booted = false;
       const boot = async () => {
+        if (booted) return;
+        booted = true;
         try {
-          const { ToothScene } = await import('./tooth-scene');
+          const { mod, layers } = await prepare();
+          const { ToothScene } = mod;
           if (disposed) return;
           const css = getComputedStyle(document.documentElement);
           const scene = new ToothScene(this.canvas().nativeElement, {
-            quality: this.viewport.isMobile() ? 'low' : 'high',
+            quality,
             colors: {
               accent: css.getPropertyValue('--color-accent').trim() || '#b08d57',
               glow: css.getPropertyValue('--lab-glow').trim() || '#9db6c1',
               enamel: '#eee5d5',
             },
           });
-          await scene.build();
+          await scene.build(layers);
           if (disposed) {
             scene.dispose();
             return;
@@ -141,18 +156,22 @@ export class ToothStageComponent {
           this.resolveReady(null);
         }
       };
-      // İlk etkileşime (fare hareketi, dokunma, kaydırma, klavye) kadar 3D yüklenmez:
-      // ilk yükleme metrikleri (LCP/TBT) ve GPU'suz ortamlar (PageSpeed, eski cihazlar) poster ile hızlı kalır.
-      const idle = (window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number })
-        .requestIdleCallback;
       const events = ['pointermove', 'pointerdown', 'wheel', 'touchstart', 'keydown', 'scroll'] as const;
       const start = () => {
         events.forEach((e) => window.removeEventListener(e, start));
-        if (idle) idle(boot, { timeout: 800 });
-        else setTimeout(boot, 200);
+        void boot();
       };
       events.forEach((e) => window.addEventListener(e, start, { once: true, passive: true }));
       destroyRef.onDestroy(() => events.forEach((e) => window.removeEventListener(e, start)));
+
+      // Modül indirme + Worker geometrisi sayfa çizilir çizilmez başlar (ana thread dışı işler)
+      void prepare();
+      const scheduleBoot = () => {
+        if (idle) idle(() => void boot(), { timeout: 800 });
+        else setTimeout(() => void boot(), 300);
+      };
+      if (document.readyState === 'complete') scheduleBoot();
+      else window.addEventListener('load', scheduleBoot, { once: true });
     });
   }
 

@@ -41,6 +41,13 @@ export class ViewportService {
       const c = document.createElement('canvas');
       const gl = c.getContext('webgl2') ?? c.getContext('webgl');
       if (!gl) return false;
+
+      // Yazılımsal (GPU'suz) çizim: SwiftShader / llvmpipe → 3D çok yavaş olur (PageSpeed, sanal makineler, eski cihazlar)
+      const info = gl.getExtension('WEBGL_debug_renderer_info');
+      const renderer = String(info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER));
+      gl.getExtension('WEBGL_lose_context')?.loseContext();
+      if (/swiftshader|llvmpipe|softpipe|software/i.test(renderer)) return false;
+
       const cores = navigator.hardwareConcurrency ?? 4;
       const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 4;
       return !(this.isMobile() && (cores < 4 || memory < 3));
